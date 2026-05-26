@@ -1,4 +1,5 @@
-import { LaunchType, LocalStorage, launchCommand } from "@raycast/api";
+import { LaunchType, LocalStorage, launchCommand, updateCommandMetadata } from "@raycast/api";
+import { useCallback, useEffect, useState } from "react";
 
 export const STORAGE_KEY = "cortisol-level";
 export const DEFAULT_LEVEL = "medium";
@@ -12,7 +13,6 @@ export const LEVEL_DETAILS: Record<
     title: string;
     description: string;
     color: string;
-    icon: string;
     menuBarIcon: string;
     rank: number;
   }
@@ -21,7 +21,6 @@ export const LEVEL_DETAILS: Record<
     title: "Low",
     description: "A calm bucket for low perceived cortisol.",
     color: "#2ab074",
-    icon: "cortisol-ui-low.png",
     menuBarIcon: "menubar-low.png",
     rank: 0,
   },
@@ -29,7 +28,6 @@ export const LEVEL_DETAILS: Record<
     title: "Medium",
     description: "The default middle bucket for moderate perceived cortisol.",
     color: "#e2a432",
-    icon: "cortisol-ui-medium.png",
     menuBarIcon: "menubar-medium.png",
     rank: 1,
   },
@@ -37,22 +35,39 @@ export const LEVEL_DETAILS: Record<
     title: "High",
     description: "A high bucket for elevated perceived cortisol.",
     color: "#e04a4a",
-    icon: "cortisol-ui-high.png",
     menuBarIcon: "menubar-high.png",
     rank: 2,
   },
 };
+
+export function parseStoredLevel(value: unknown): CortisolLevel {
+  if (typeof value !== "string") {
+    return DEFAULT_LEVEL;
+  }
+
+  const parsed = normalizeLevel(value);
+  if (parsed !== DEFAULT_LEVEL || value === DEFAULT_LEVEL) {
+    return parsed;
+  }
+
+  try {
+    return normalizeLevel(JSON.parse(value));
+  } catch {
+    return DEFAULT_LEVEL;
+  }
+}
 
 export function normalizeLevel(value: unknown): CortisolLevel {
   return LEVELS.includes(value as CortisolLevel) ? (value as CortisolLevel) : DEFAULT_LEVEL;
 }
 
 export async function getCortisolLevel(): Promise<CortisolLevel> {
-  return normalizeLevel(await LocalStorage.getItem<string>(STORAGE_KEY));
+  return parseStoredLevel(await LocalStorage.getItem<string>(STORAGE_KEY));
 }
 
 export async function setCortisolLevel(level: CortisolLevel): Promise<CortisolLevel> {
   await LocalStorage.setItem(STORAGE_KEY, level);
+  await updateCortisolCommandMetadata(level);
   return level;
 }
 
@@ -84,4 +99,43 @@ export async function refreshMenuBar(): Promise<void> {
 
 export function formatLevel(level: CortisolLevel): string {
   return LEVEL_DETAILS[level].title;
+}
+
+export async function updateCortisolCommandMetadata(level: CortisolLevel): Promise<void> {
+  try {
+    await updateCommandMetadata({ subtitle: `Cortisol: ${formatLevel(level)}` });
+  } catch (error) {
+    console.error("Unable to update Cortisol command metadata", error);
+  }
+}
+
+export function useCortisolLevel() {
+  const [level, setLevel] = useState<CortisolLevel>(DEFAULT_LEVEL);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadLevel() {
+      const storedLevel = await getCortisolLevel();
+      if (isMounted) {
+        setLevel(storedLevel);
+        setIsLoading(false);
+      }
+      await updateCortisolCommandMetadata(storedLevel);
+    }
+
+    loadLevel();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const updateLevel = useCallback(async (nextLevel: CortisolLevel) => {
+    setLevel(nextLevel);
+    await setCortisolLevel(nextLevel);
+  }, []);
+
+  return { level, setLevel: updateLevel, isLoading };
 }

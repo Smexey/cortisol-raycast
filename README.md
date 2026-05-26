@@ -13,9 +13,12 @@ This extension is a personal state indicator. It is not a medical device and doe
 
 ## Assets
 
-The generated meter assets are derived from the FreeSVG/OpenClipart gauge image:
+The extension uses one static Raycast icon and three state-specific menu bar icons:
 
-- Source image: https://freesvg.org/img/gauge.png
-- License page: https://freesvg.org/gauge
+- Raycast icon: `assets/icon.png`
+- Menu bar icons: `assets/menubar-low.png`, `assets/menubar-medium.png`, `assets/menubar-high.png`
+- Build script: `scripts/build_assets.py`
+- Versioned icon source: `assets/icon/v###/`
+- Versioned menu bar sources: `assets/menubar/v###/`
 
-FreeSVG lists the source as Public Domain / CC0.
+The static icon is a cleaned high-cortisol gauge with the bottom wordmark removed and rounded icon masking. The menu bar icons are black/transparent template glyphs so Raycast/macOS can tint them.

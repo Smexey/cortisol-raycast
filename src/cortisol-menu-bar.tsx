@@ -1,24 +1,20 @@
 import { Color, Icon, MenuBarExtra } from "@raycast/api";
-import { useLocalStorage } from "@raycast/utils";
 
 import {
   CortisolLevel,
-  DEFAULT_LEVEL,
   LEVEL_DETAILS,
-  STORAGE_KEY,
   formatLevel,
   getIncreasedLevel,
   getLoweredLevel,
-  normalizeLevel,
+  useCortisolLevel,
 } from "./cortisol";
 
 export default function Command() {
-  const { value, setValue, isLoading } = useLocalStorage<CortisolLevel>(STORAGE_KEY, DEFAULT_LEVEL);
-  const level = normalizeLevel(value);
+  const { level, setLevel, isLoading } = useCortisolLevel();
   const details = LEVEL_DETAILS[level];
 
   async function updateLevel(nextLevel: CortisolLevel) {
-    await setValue(nextLevel);
+    await setLevel(nextLevel);
   }
 
   return (

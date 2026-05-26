@@ -1,30 +1,72 @@
 import { Action, ActionPanel, Color, Icon, List } from "@raycast/api";
-import { useLocalStorage } from "@raycast/utils";
 
 import {
   CortisolLevel,
-  DEFAULT_LEVEL,
   LEVEL_DETAILS,
   LEVELS,
-  STORAGE_KEY,
   formatLevel,
   getIncreasedLevel,
   getLoweredLevel,
-  normalizeLevel,
   refreshMenuBar,
+  useCortisolLevel,
 } from "./cortisol";
 
 export default function Command() {
-  const { value, setValue, isLoading } = useLocalStorage<CortisolLevel>(STORAGE_KEY, DEFAULT_LEVEL);
-  const currentLevel = normalizeLevel(value);
+  const { level: currentLevel, setLevel, isLoading } = useCortisolLevel();
 
   async function updateLevel(nextLevel: CortisolLevel) {
-    await setValue(nextLevel);
+    await setLevel(nextLevel);
     await refreshMenuBar();
   }
 
+  const currentDetails = LEVEL_DETAILS[currentLevel];
+
   return (
     <List isLoading={isLoading} isShowingDetail searchBarPlaceholder="Select a cortisol bucket">
+      <List.Item
+        title={`Current: ${formatLevel(currentLevel)}`}
+        subtitle={currentDetails.description}
+        icon="icon.png"
+        accessories={[{ tag: { color: Color.Green, value: "Active" } }]}
+        detail={
+          <List.Item.Detail
+            markdown={detailMarkdown(currentLevel, true)}
+            metadata={
+              <List.Item.Detail.Metadata>
+                <List.Item.Detail.Metadata.Label
+                  title="Current Bucket"
+                  icon={{ source: currentDetails.menuBarIcon, tintColor: currentDetails.color }}
+                  text={currentDetails.title}
+                />
+              </List.Item.Detail.Metadata>
+            }
+          />
+        }
+        actions={
+          <ActionPanel>
+            <ActionPanel.Section>
+              <Action
+                icon={Icon.ArrowUp}
+                shortcut={{ modifiers: ["cmd"], key: "arrowUp" }}
+                title="Increase Cortisol"
+                onAction={() => updateLevel(getIncreasedLevel(currentLevel))}
+              />
+              <Action
+                icon={Icon.ArrowDown}
+                shortcut={{ modifiers: ["cmd"], key: "arrowDown" }}
+                title="Lower Cortisol"
+                onAction={() => updateLevel(getLoweredLevel(currentLevel))}
+              />
+              <Action
+                icon={Icon.RotateClockwise}
+                shortcut={{ modifiers: ["cmd"], key: "r" }}
+                title="Reset to Medium"
+                onAction={() => updateLevel("medium")}
+              />
+            </ActionPanel.Section>
+          </ActionPanel>
+        }
+      />
       {LEVELS.map((level) => {
         const details = LEVEL_DETAILS[level];
         const isCurrent = level === currentLevel;
@@ -34,7 +76,11 @@ export default function Command() {
             key={level}
             title={details.title}
             subtitle={details.description}
-            icon={{ source: Icon.CircleFilled, tintColor: details.color }}
+            icon={
+              isCurrent
+                ? { source: details.menuBarIcon, tintColor: details.color }
+                : { source: Icon.CircleFilled, tintColor: details.color }
+            }
             accessories={[{ tag: isCurrent ? { color: Color.Green, value: "Current" } : undefined }]}
             detail={
               <List.Item.Detail
@@ -91,7 +137,7 @@ function detailMarkdown(level: CortisolLevel, isCurrent: boolean) {
   const details = LEVEL_DETAILS[level];
   const status = isCurrent ? "This is your current cortisol bucket." : "Select this bucket to make it current.";
 
-  return `![${details.title}](${details.icon}?raycast-width=360&raycast-height=259)
+  return `![${details.title}](icon.png?raycast-width=256&raycast-height=256)
 
 # ${formatLevel(level)}
 
