@@ -4,7 +4,7 @@
   "title": "Cortisol Meter",
   "description": "Manually track cortisol as low, medium, or high from Raycast and the macOS menu bar.",
   "icon": "icon.png",
-  "author": "pyo",
+  "author": "smexey",
   "platforms": [
     "macOS"
   ],
