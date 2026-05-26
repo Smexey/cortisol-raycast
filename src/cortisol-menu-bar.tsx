@@ -40,7 +40,6 @@ export default function Command() {
           title="Lower Cortisol"
           onAction={() => updateLevel(getLoweredLevel(level))}
         />
-        <MenuBarExtra.Item icon={Icon.RotateClockwise} title="Reset to Medium" onAction={() => updateLevel("medium")} />
       </MenuBarExtra.Section>
     </MenuBarExtra>
   );

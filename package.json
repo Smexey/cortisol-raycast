@@ -14,12 +14,6 @@
   "license": "MIT",
   "commands": [
     {
-      "name": "index",
-      "title": "Cortisol Meter",
-      "description": "Show and adjust the current cortisol bucket.",
-      "mode": "view"
-    },
-    {
       "name": "increase-cortisol",
       "title": "Increase Cortisol",
       "description": "Move the cortisol bucket up one level.",

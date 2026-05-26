@@ -13,8 +13,6 @@ type ExtensionPreferences = {}
 declare type Preferences = ExtensionPreferences
 
 declare namespace Preferences {
-  /** Preferences accessible in the `index` command */
-  export type Index = ExtensionPreferences & {}
   /** Preferences accessible in the `increase-cortisol` command */
   export type IncreaseCortisol = ExtensionPreferences & {}
   /** Preferences accessible in the `lower-cortisol` command */
@@ -24,8 +22,6 @@ declare namespace Preferences {
 }
 
 declare namespace Arguments {
-  /** Arguments passed to the `index` command */
-  export type Index = {}
   /** Arguments passed to the `increase-cortisol` command */
   export type IncreaseCortisol = {}
   /** Arguments passed to the `lower-cortisol` command */
