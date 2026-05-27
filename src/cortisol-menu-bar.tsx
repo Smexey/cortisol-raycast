@@ -1,4 +1,5 @@
-import { Color, Icon, MenuBarExtra } from "@raycast/api";
+import { Color, Icon, LaunchProps, MenuBarExtra } from "@raycast/api";
+import { useEffect } from "react";
 
 import {
   CortisolLevel,
@@ -6,12 +7,24 @@ import {
   formatLevel,
   getIncreasedLevel,
   getLoweredLevel,
+  normalizeLevel,
   useCortisolLevel,
 } from "./cortisol";
 
-export default function Command() {
-  const { level, setLevel, isLoading } = useCortisolLevel();
+type CortisolMenuBarLaunchContext = {
+  level?: CortisolLevel;
+  refreshedAt?: number;
+};
+
+export default function Command({ launchContext }: LaunchProps<{ launchContext: CortisolMenuBarLaunchContext }>) {
+  const { level, setLevel, refreshLevel, isLoading } = useCortisolLevel();
   const details = LEVEL_DETAILS[level];
+
+  useEffect(() => {
+    if (launchContext?.level) {
+      void refreshLevel(normalizeLevel(launchContext.level));
+    }
+  }, [launchContext?.level, launchContext?.refreshedAt, refreshLevel]);
 
   async function updateLevel(nextLevel: CortisolLevel) {
     await setLevel(nextLevel);

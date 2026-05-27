@@ -89,9 +89,13 @@ export async function lowerCortisolLevel(): Promise<CortisolLevel> {
   return setCortisolLevel(getLoweredLevel(level));
 }
 
-export async function refreshMenuBar(): Promise<void> {
+export async function refreshMenuBar(level: CortisolLevel): Promise<void> {
   try {
-    await launchCommand({ name: "cortisol-menu-bar", type: LaunchType.Background });
+    await launchCommand({
+      name: "cortisol-menu-bar",
+      type: LaunchType.Background,
+      context: { level, refreshedAt: Date.now() },
+    });
   } catch (error) {
     console.error("Unable to refresh Cortisol Menu Bar", error);
   }
@@ -132,10 +136,17 @@ export function useCortisolLevel() {
     };
   }, []);
 
+  const refreshLevel = useCallback(async (nextLevel?: CortisolLevel) => {
+    const refreshedLevel = nextLevel ?? (await getCortisolLevel());
+    setLevel(refreshedLevel);
+    setIsLoading(false);
+    await updateCortisolCommandMetadata(refreshedLevel);
+  }, []);
+
   const updateLevel = useCallback(async (nextLevel: CortisolLevel) => {
     setLevel(nextLevel);
     await setCortisolLevel(nextLevel);
   }, []);
 
-  return { level, setLevel: updateLevel, isLoading };
+  return { level, setLevel: updateLevel, refreshLevel, isLoading };
 }
