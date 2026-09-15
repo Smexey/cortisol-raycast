@@ -32,11 +32,14 @@
       "mode": "menu-bar"
     }
   ],
+  "engines": {
+    "node": ">=22.22.2"
+  },
   "dependencies": {
-    "@raycast/api": "1.104.18"
+    "@raycast/api": "2.4.1"
   },
   "devDependencies": {
-    "@raycast/eslint-config": "2.1.1",
+    "@raycast/eslint-config": "2.2.0",
     "@types/node": "22.19.19",
     "@types/react": "19.2.15",
     "eslint": "9.39.4",

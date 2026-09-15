@@ -12,6 +12,19 @@ This extension is a personal state indicator. It is not a medical device and doe
 
 The menu bar command must remain in the manifest because Raycast uses `menu-bar` commands to create persistent menu bar extras. Enable or run `Cortisol Menu Bar` once in Raycast to keep the indicator active.
 
+## Development and Raycast v2 setup
+
+Requires Raycast v2 on macOS and Node.js 22.22.2 or newer (see `.nvmrc`).
+
+```sh
+npm ci
+npm run dev
+```
+
+Run these commands from this directory to build and register the local extension with Raycast v2, including after migrating from v1. Once Raycast loads it, run `Cortisol Menu Bar` to activate the indicator. You can stop the development watcher with Ctrl+C when finished.
+
+Use `npm run build`, `npx tsc --noEmit`, and `npm run lint` to validate changes.
+
 ## Assets
 
 The extension uses one static Raycast icon and three state-specific menu bar icons:
